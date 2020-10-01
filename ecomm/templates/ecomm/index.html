@@ -1,0 +1,224 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<title>Index</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="stylesheet" href="{% static 'css/custom.css' %}">
+		<script type="text/javascript" charset="utf-8" 
+			src="{% static 'js/jquery.js' %}"></script>
+		<script type="text/javascript" charset="utf-8" 
+			src="{% static 'js/vue.js' %}"></script>
+		<script type="text/javascript" charset="utf-8" 
+			 src="{% static 'js/custom.js' %}"></script>
+	</head>
+	<body>
+		<div id="main">
+			<div id="bloco"></div>
+			<section>
+				<div id="inicio" style="display:;">
+					<div id="inicio-head">
+						<div id="inicio-logo">
+							<img width="100%" src="static/img/carrossel2.jpg" alt="">
+						</div>
+						<div id="inicio-carrossel">
+							<img id="inicio-carrossel-img1" width="100%" src="static/img/carrossel1.jpg" alt="" />
+
+						</div>
+					</div>
+					<div id="destaques">
+						<span id="destaques-titulo">PRODUTOS EM DESTAQUE</span>
+						<div id="destaques-grid">
+							
+							<div v-for="item in produtos" class="destaques-itens">
+								<figure>
+									<img :src="item.img" >
+									<figcaption>
+										RS [% item.preco %]
+										<input type="hidden" :name="item.nome" :id="item.nome" value="" /><br>
+										<button v-if="!inCart(item)" @click="addCart(item)" class="btn-add-cart">Comprar</button>
+										<button v-if="inCart(item)"  @click="remCart(item)" class="btn-rem-cart">Remover</button>
+									</figcaption>
+								</figure>
+							</div>
+							
+						</div>
+					</div>
+				</div>
+				
+				<div id="produtos" style="display:none;">
+					<div id="produtos-categ">
+						<ul>
+							<li class="produtos-categ-opt"><span @click="showHide('#produtos-categ-moda')"><h3>Moda</h3></span>
+								<ul id="produtos-categ-moda" style="display:none;">
+									<li>Homem</li>
+									<li>Mulher</li>
+									<li>Infantil</li>
+								</ul>
+							</li>
+							<li class="produtos-categ-opt">
+								<span @click="showHide('#produtos-categ-perfumaria')"><h3>Perfumaria</h3></span>
+								<ul id="produtos-categ-perfumaria" style="display: none;">
+									<li>Homem</li>
+									<li>Mulher</li>
+									<li>Infantil</li>
+								</ul>
+							</li>
+							<li class="produtos-categ-opt">
+								<span @click="showHide('#produtos-categ-calcados')"><h3>Calçados</h3></span>
+								<ul id="produtos-categ-calcados" style="display: none;">
+									<li>Homem</li>
+									<li>Mulher</li>
+									<li>Infantil</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</div>
+				
+				<div id="carrinho" style="display:none;">
+					<div id="carrinho-itens-lista">
+						<div v-if="cartLen() == 0" id="carrinho-itens-vazio">
+							seu carrinho está vazio
+						</div>
+						<ul v-if="cartLen() > 0">
+							<li v-for="item in carrinho">
+								<p class="carrinho-itens">
+									<span>[% item.nome %]</span> 
+									<span>preço: R$[% item.preco %]</span>
+									<span @click="remCart(item)" class="btn-rem-cart">remover</span>
+								</p>
+							</li>
+							<li id="carrinho-total">Total: R$ [% totalCart() %]</li>
+						</ul>
+						<div id="carrinho-finalizacao" v-if="cartLen() > 0">
+							<button @click="showFinalizar();" id="carrinho-finalizacao-btn">Finalizar Compra</button>
+						</div>
+					</div>
+				</div>
+				
+				<div id="finalizar" style="display: none;">
+					<div id="finalizar-head">
+						<h3>Finalizar Compra</h3>
+					</div>
+					<div id="finalizar-form">
+						<h4>Métodos De pagamento</h4>
+						<span>
+							<input @click="showBoleto()" type="radio" name="metodoPagamento" id="final-boleto" />
+							<label @click="showBoleto()" for="final-boleto">Boleto</label>
+						</span>
+						
+						<span>
+							<input @click="showCredito()" type="radio" name="metodoPagamento" id="final-credito"/>
+							<label @click="showCredito()" for="final-credito">Cartão de Crédito</label>
+						</span>
+							
+						<span>
+							<input @click="showDebito()" type="radio" name="metodoPagamento" id="final-debito" />
+							<label @click="showDebito()" for="final-debito">Cartão de Débito</label>
+						</span>
+							
+						<span>
+							<input @click="showMercadoPago()" type="radio" name="metodoPagamento" id="final-mercadopago" />
+							<label @click="showMercadoPago()" for="final-mercadopago">Mercado Pago</label>
+						</span>
+						
+						
+						<div id="metodoBoleto" style="display: none;">
+							<input type="text" name="nomeClient" id="nomeClient" placeholder="Nome Completo"/>
+							<input type="text" name="cpfClient" id="cpfClient"   placeholder="CPF"/>
+							<button>Finalizar Compra</button>
+						</div>
+						
+						<div id="metodoCredito" style="display: none;">
+							<input type="text" name="numCardCre" id="numCardCre" placeholder="Número do Cartão"/>
+							<input type="text" name="dataValCre" id="dataValCre" placeholder="Validade"/>
+							<input type="text" name="ccvCre"    id="ccvCre"      placeholder="CVV"/>
+							<button>Finalizar Compra</button>
+						</div>
+							
+						<div id="metodoDebito" style="display: none;">
+							<input type="text" name="numCardDeb" id="numCardDeb" placeholder="Número do Cartão"/>
+							<input type="text" name="dataValDeb" id="dataValDeb" placeholder="Validade" />
+							<input type="text" name="ccvDeb"     id="ccvDeb"     placeholder="CVV"/>
+							<button>Finalizar Compra</button>
+						</div>
+							
+						<div id="metodoMercadoPago" style="display: none;">
+							api
+						</div>
+						
+					</div>
+				</div>
+				
+				<div id="contato" style="display:none;">
+					<span @click="hide('#contato')" id="contato-btn-close">Close</span>
+					<div id="contato-form">
+						<input type="text"  name="nome"     id="nome"     placeholder="Nome Completo"/>
+						<input type="email" name="email"    id="email"    placeholder="Email"/>
+						<input type="text"  name="telefone" id="telefone" placeholder="Telefone"/>
+						<textarea name="mensagem" id=mensagem  placeholder="Mensagem"></textarea>
+						
+						<button>Enviar</button>
+					</div>
+				</div>
+			</section>
+			
+			<header>
+				<div id="header-grid">
+					
+				<div id="head-nav">
+					<div><span @click="searchBox()">search</span></div>
+					<div><span><img width="100%" src="static/img/logo.png" alt="" /></span></div>
+					<span @click="menu(true)"><span id="btnMenu">MENU</span></span>
+				</div>
+				<div id="search-box" style="display:none;">
+					<input type="search" name="search-text" id="search-text"/>
+					<input type="submit" name="search-btn" id="search-btn" value="buscar" />
+				</div>
+				<div id="header">
+					<ul>
+						<li id="nav-inicio"  @click="showInicio()" class="select">Inicio</li>
+						<li id="nav-produtos" @click="showProdutos()">Produtos</li>
+						<li id="nav-carrinho" @click="showCarrinho()">Carrinho <span id="lenCarrinho">&nbsp;[% cartLen() %]&nbsp;</span></li>
+					</ul>
+				</div>
+				</div>
+			</header>
+			
+			<div id="menu" style="display: none;">
+					<div id="menu-head">
+						<div id="menu-head-user">
+							<div id="menu-head-user-img">
+								<img width="100%" src="static/img/userIcon.png" alt="" />
+							</div>
+						</div>
+						<span>Olá, Seja Bem Vindo!</span>
+						<div id="menu-head-login">
+							<span id="menu-head-login-cad">Cadastre se</span> | 
+							<span id="menu-head-login-log">Fazer Login</span>
+						</div>
+					</div>
+					<div id="menu-itens">
+						<ul>
+							<li class="menu-opt" @click="showInicio();   menu(true)">Inicio</li>
+							<li class="menu-opt" @click="showProdutos(); menu(true)">Produtos</li>
+							<li class="menu-opt" @click="showCarrinho(); menu(true)">Carrinho ( itens: [% cartLen() %] )</li>
+							<li class="menu-opt" @click="showHide('#contato'); menu(true)">Contato</li>
+							<li class="menu-opt">
+								<span @click="showHide('#menu-opt-categorias')">Categorias</span> 
+								<ul id="menu-opt-categorias" style="display:none;">
+									<li class="menu-opt-categ">Homem</li>
+									<li class="menu-opt-categ">Mulher</li>
+									<li class="menu-opt-categ">Infantil</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</div>
+			
+			<!-- AQUI TERMINA A DIV MAIN-->
+		</div>
+	</body>
+</html>
